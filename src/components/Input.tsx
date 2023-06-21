@@ -13,6 +13,7 @@ const Input = () => {
 
     const DeleteHandler = (i) => {
         setData(data.filter((_, index) => index !== i));
+        setCompletedTasks(completedTasks.filter((index) => index !== i));
     };
 
     const [completedTasks, setCompletedTasks] = useState([]);
@@ -25,6 +26,28 @@ const Input = () => {
         }
     };
 
+    const [showEdit, setShowEdit] = useState([])
+
+    const EditHandler = (i) =>{
+        if (showEdit.includes(i)) {
+            setShowEdit(completedTasks.filter((index) => index !== i));
+        } else {
+            setShowEdit([...completedTasks, i]);
+        }
+    }
+
+    const ConfirmChanges = (i) => (e) => {
+        e.preventDefault();
+        const newDataArr = [...data]
+        newDataArr[i] = changedTask
+        setData(newDataArr)
+        newTask('')
+        setShowEdit([])
+    };
+
+    const [changedTask,newTask] = useState(task)
+
+
     return (
         <Box sx={{ display: 'flex', gap: '1rem', width: '60%', flexDirection: 'column' }}>
             <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', width: '100%' }}>
@@ -34,22 +57,33 @@ const Input = () => {
                 </Button>
             </form>
             {data.map((task, i) => (
-                <Paper key={i} elevation={3} square sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
-                    <Typography variant="p" style={completedTasks.includes(i) ? { textDecoration: 'line-through' } : {}}>
-                        {task}
-                    </Typography>
-                    <Box>
-                        <Button variant="danger" onClick={() => FinishHandler(i)}>
-                            {completedTasks.includes(i) ? 'Unfinish' : 'Finish'}
+                <Box key={i}>
+                    <Paper  elevation={3} square sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' ,my:1.5}}>
+                        <Typography variant="p" style={completedTasks.includes(i) ? { textDecoration: 'line-through' } : {}}>
+                            {task}
+                        </Typography>
+                        <Box>
+                            <Button variant="danger" onClick={() => FinishHandler(i)}>
+                                {completedTasks.includes(i) ? 'Unfinish' : 'Finish'}
+                            </Button>
+                            <Button variant="danger" onClick={() => EditHandler(i)}>
+                                Edit
+                            </Button>
+                            <Button variant="danger" onClick={() => DeleteHandler(i)}>
+                                Delete
+                            </Button>
+                        </Box>
+                    </Paper>
+                    <form   onSubmit={(e)=>ConfirmChanges(i)(e)} style={{ display: showEdit.includes(i)?"flex":"none", gap: '1rem', width: '100%' }}>
+                        <TextField required value={changedTask} onChange={(e) => newTask(e.target.value)} id="outlined-basic" label="Change name task" variant="outlined" sx={{ width: '100%' }} />
+                        <Button variant="danger" type={"submit"} >
+                            Change
                         </Button>
-                        <Button variant="danger">
-                            Edit
+                        <Button variant="danger" onClick={()=>setShowEdit([])} >
+                            Close
                         </Button>
-                        <Button variant="danger" onClick={() => DeleteHandler(i)}>
-                            Delete
-                        </Button>
-                    </Box>
-                </Paper>
+                    </form>
+                </Box>
             ))}
         </Box>
     );
