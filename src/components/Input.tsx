@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Box, Button, Paper, TextField, Typography } from '@mui/material';
 
 const Input = () => {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState(() => {
+        const storedData = localStorage.getItem('data');
+        return storedData ? JSON.parse(storedData) : [];
+    });
     const [task, setTask] = useState('');
+
+    useEffect(() => {
+        localStorage.setItem('data', JSON.stringify(data));
+    }, [data]);
+
+
+    useEffect(() => {
+        const storedData = localStorage.getItem('data');
+        if (storedData) {
+            setData(JSON.parse(storedData));
+        }
+    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
